@@ -5,24 +5,22 @@
 
 
 ## Basic Details
-### Name: [Name]
+### Name: Aswin Jim Thuruthippilly
 
 ### Project Description
 [2-3 lines about what your project does]
 
 ## Technical Details
 ### Technologies/Components Used
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+- HTML,CSS,TS
+- Next.js
+- scadcn
+- VS Code,github,github copilot
 
 # Installation
-[commands]
-
+```npm install```
 # Run
-[commands]
-
+```npm run dev```
 ### Project Documentation
 
 # Screenshots (Add at least 3)
