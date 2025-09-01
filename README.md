@@ -8,7 +8,7 @@
 
 ### Project Description
 
-Code-A-Pookalam is an interactive web application that generates beautiful Onam Pookalam designs - traditional Kerala flower rangoli patterns. Users can upload their photos which get automatically stylized to match the vibrant colors of traditional pookalam flowers and placed at the center of the design. The app creates intricate, colorful patterns using geometric shapes and gradients, perfect for celebrating the festival of Onam.
+Code-A-Pookalam is an interactive web application that generates beautiful Onam Pookalam designs - traditional Kerala flower  patterns. Users can upload their photos which get automatically stylized to match the vibrant colors of traditional pookalam flowers and placed at the center of the design. The app creates intricate, colorful patterns using geometric shapes and gradients, perfect for celebrating the festival of Onam.
 
 ## Technical Details
 
@@ -77,27 +77,27 @@ The application is built with a modern React architecture:
 
 ## Main Interface
 
-![Main Interface](https://via.placeholder.com/800x600/22c55e/ffffff?text=Pookalam+Generator+Interface)
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/ff4f00a5-d148-4440-a32b-af7e481012d5" />
 _The main application interface showing the upload area, controls, and generated pookalam preview_
 
 ## Photo Upload Feature
 
-![Photo Upload](https://via.placeholder.com/800x600/3b82f6/ffffff?text=Photo+Upload+Demo)
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/545f367c-4ff8-4bf7-8f55-dda9a96db61d" />
 _Demonstrating the photo upload functionality with real-time stylization_
 
 ## Generated Pookalam
+<img width="600" height="600" alt="onam-pookalam (4)" src="https://github.com/user-attachments/assets/aaf6c2ee-abed-4695-88a8-5e735778b4ca" />
 
-![Generated Design](https://via.placeholder.com/800x600/dc2626/ffffff?text=Sample+Pookalam+Output)
 _Example of a completed pookalam design with integrated user photo_
 
-## Mobile View
 
-![Mobile Responsive](https://via.placeholder.com/400x600/7c3aed/ffffff?text=Mobile+View)
-_Responsive design working perfectly on mobile devices_
 
 # Video Demo
 
-[🎥 Watch Demo Video](https://youtu.be/your-demo-video-id)
+
+https://github.com/user-attachments/assets/afaf9c88-e4f4-4c3c-9bf7-17b63c863777
+
+
 _Complete walkthrough of the Pookalam Generator showing photo upload, real-time processing, color randomization, and final download. Demonstrates the full user experience from start to finish._
 
 ---
