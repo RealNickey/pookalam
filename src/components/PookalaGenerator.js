@@ -27,59 +27,73 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 
-// Traditional Onam color palettes
+// Base colors (user-specified realistic flower colors)
+const BASE_FLOWER_COLORS = [
+  "#790922", // deep maroon/crimson
+  "#d16908", // dark orange / marigold
+  "#2a4712", // deep green (tulasi)
+  "#dbcd16", // yellow
+  "#f1e6d5", // off-white / white variant
+];
+
+// --- Color utilities to generate shade variations ---
+const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+const hexToRgb = (hex) => {
+  const h = hex.replace(/^#/, "");
+  const bigint = parseInt(h, 16);
+  if (h.length === 6) {
+    return {
+      r: (bigint >> 16) & 255,
+      g: (bigint >> 8) & 255,
+      b: bigint & 255,
+    };
+  }
+  // fallback
+  return { r: 0, g: 0, b: 0 };
+};
+const rgbToHex = (r, g, b) =>
+  `#${[r, g, b]
+    .map((x) => clamp(Math.round(x), 0, 255).toString(16).padStart(2, "0"))
+    .join("")}`;
+
+// Mix color toward a target (white for lighten, black for darken)
+const mix = (hex, targetHex, amount) => {
+  const { r, g, b } = hexToRgb(hex);
+  const { r: tr, g: tg, b: tb } = hexToRgb(targetHex);
+  const nr = r + (tr - r) * amount;
+  const ng = g + (tg - g) * amount;
+  const nb = b + (tb - b) * amount;
+  return rgbToHex(nr, ng, nb);
+};
+const lighten = (hex, amount) => mix(hex, "#ffffff", amount);
+const darken = (hex, amount) => mix(hex, "#000000", amount);
+
+// Build a set of shades for a single base color
+const buildShades = (hex) => [
+  darken(hex, 0.35),
+  darken(hex, 0.2),
+  hex,
+  lighten(hex, 0.18),
+  lighten(hex, 0.32),
+];
+
+// Compose the final palette by interleaving shades from each base color
+const buildPalette = (bases) => {
+  const shadeGroups = bases.map((c) => buildShades(c));
+  const maxLen = Math.max(...shadeGroups.map((g) => g.length));
+  const out = [];
+  for (let i = 0; i < maxLen; i++) {
+    for (let g = 0; g < shadeGroups.length; g++) {
+      if (shadeGroups[g][i]) out.push(shadeGroups[g][i]);
+    }
+  }
+  return out;
+};
+
 const COLOR_PALETTES = [
   {
-    name: "Traditional",
-    colors: [
-      "#FF6B35",
-      "#F7931E",
-      "#FFD23F",
-      "#06FFA5",
-      "#4ECDC4",
-      "#45B7D1",
-      "#96CEB4",
-      "#FECA57",
-    ],
-  },
-  {
-    name: "Vibrant",
-    colors: [
-      "#E74C3C",
-      "#F39C12",
-      "#F1C40F",
-      "#2ECC71",
-      "#1ABC9C",
-      "#3498DB",
-      "#9B59B6",
-      "#E67E22",
-    ],
-  },
-  {
-    name: "Royal",
-    colors: [
-      "#8E44AD",
-      "#3498DB",
-      "#E74C3C",
-      "#F39C12",
-      "#2ECC71",
-      "#E67E22",
-      "#34495E",
-      "#95A5A6",
-    ],
-  },
-  {
-    name: "Sunset",
-    colors: [
-      "#FF7675",
-      "#FDCB6E",
-      "#E17055",
-      "#00B894",
-      "#00CEC9",
-      "#74B9FF",
-      "#A29BFE",
-      "#FD79A8",
-    ],
+    name: "Traditional Flowers",
+    colors: buildPalette(BASE_FLOWER_COLORS),
   },
 ];
 
@@ -93,12 +107,20 @@ const PookalaGenerator = () => {
   const [processedFace, setProcessedFace] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [size, setSize] = useState(600);
+  const [paletteRotation, setPaletteRotation] = useState(0);
 
   // --- Geometry helpers (polar coordinates) ---
   const polar = (cx, cy, r, theta) => ({
     x: cx + r * Math.cos(theta),
     y: cy + r * Math.sin(theta),
   });
+
+  const rotateArray = (arr, by) => {
+    if (!arr?.length) return arr;
+    const n = arr.length;
+    const k = ((by % n) + n) % n;
+    return arr.slice(k).concat(arr.slice(0, k));
+  };
 
   const drawTriangle = (
     ctx,
@@ -185,7 +207,8 @@ const PookalaGenerator = () => {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const palette = COLOR_PALETTES[currentPalette].colors;
+    const basePalette = COLOR_PALETTES[currentPalette].colors;
+    const palette = rotateArray(basePalette, paletteRotation);
     const layers = 8;
     const petalsPerLayer = 12;
 
@@ -308,7 +331,7 @@ const PookalaGenerator = () => {
 
     // Draw center face if available
     if (processedFace) {
-      const faceRadius = (maxRadius / layers) * 1.2;
+      const faceRadius = maxRadius * 0.32; // larger face center
       ctx.save();
       ctx.beginPath();
       ctx.arc(centerX, centerY, faceRadius, 0, 2 * Math.PI);
@@ -374,7 +397,10 @@ const PookalaGenerator = () => {
 
   // Stylize face to match Pookalam aesthetic
   const stylizeFace = (ctx, size) => {
-    const palette = COLOR_PALETTES[currentPalette].colors;
+    const palette = rotateArray(
+      COLOR_PALETTES[currentPalette].colors,
+      paletteRotation
+    );
     const imageData = ctx.getImageData(0, 0, size, size);
     const data = imageData.data;
 
@@ -428,18 +454,22 @@ const PookalaGenerator = () => {
       setUploadedImage(file);
       processFaceImage(file);
       toast.success("Photo uploaded!", {
-        description: "We stylized it to match the rangoli vibes.",
+        description: "We stylized it to match the pookalam vibes.",
       });
     }
   };
 
   // Randomize colors
   const randomizeColors = () => {
-    setCurrentPalette((prev) => (prev + 1) % COLOR_PALETTES.length);
-
-    // Re-process face if available
+    // Keep the same base colors; vary shade order for visual variation
+    const baseLen = COLOR_PALETTES[currentPalette].colors.length;
+    setPaletteRotation(Math.floor(Math.random() * baseLen));
+    // Re-process face if available to update quantization with new order
     if (uploadedImage) {
       processFaceImage(uploadedImage);
+    } else {
+      // Regenerate canvas
+      generatePookalam();
     }
   };
 
@@ -473,7 +503,7 @@ const PookalaGenerator = () => {
                   🌸 Onam Pookalam Generator
                 </CardTitle>
                 <CardDescription>
-                  Create a vibrant rangoli with your photo at the center.
+                  Create a vibrant pookalam with your photo at the center.
                 </CardDescription>
               </div>
               <Badge variant="secondary" className="text-sm">
@@ -508,24 +538,7 @@ const PookalaGenerator = () => {
                 </Tooltip>
               </TooltipProvider>
 
-              <div className="grid gap-2">
-                <Label htmlFor="palette">Palette</Label>
-                <Select
-                  value={String(currentPalette)}
-                  onValueChange={(v) => setCurrentPalette(Number(v))}
-                >
-                  <SelectTrigger id="palette" className="w-[200px]">
-                    <SelectValue placeholder="Select palette" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {COLOR_PALETTES.map((p, idx) => (
-                      <SelectItem key={p.name} value={String(idx)}>
-                        {p.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Palette selector removed per request */}
 
               <div className="grid gap-2">
                 <Label htmlFor="size">Canvas Size</Label>
@@ -561,24 +574,7 @@ const PookalaGenerator = () => {
               </div>
             </div>
 
-            {/* Current palette info */}
-            <div className="text-center mb-4">
-              <p className="text-muted-foreground mb-2">
-                Current Palette:{" "}
-                <span className="font-semibold">
-                  {COLOR_PALETTES[currentPalette].name}
-                </span>
-              </p>
-              <div className="flex justify-center gap-2">
-                {COLOR_PALETTES[currentPalette].colors.map((color, index) => (
-                  <div
-                    key={index}
-                    className="w-6 h-6 rounded-full border shadow-sm"
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-            </div>
+            {/* Palette info removed per request */}
 
             {/* Canvas */}
             <div className="flex justify-center mb-4">
@@ -613,7 +609,7 @@ const PookalaGenerator = () => {
               <h3 className="font-semibold mb-2">How to use</h3>
               <ol className="text-sm space-y-1">
                 <li>1. Upload a front-facing photo for the center</li>
-                <li>2. Try different color palettes or hit Randomize</li>
+                <li>2. Hit Randomize to explore variations</li>
                 <li>3. Download your beautiful Onam Pookalam!</li>
               </ol>
             </div>
