@@ -10,7 +10,9 @@
   "dependencies": {
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.2"
+    "next": "15.5.2",
+    "@mediapipe/face_detection": "^0.4.1648839169",
+    "@mediapipe/camera_utils": "^0.3.1675466862"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
