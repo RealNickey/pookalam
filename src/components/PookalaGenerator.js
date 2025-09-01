@@ -353,7 +353,7 @@ const PookalaGenerator = () => {
       ctx.lineWidth = 4;
       ctx.stroke();
     }
-  }, [currentPalette, processedFace]);
+  }, [currentPalette, processedFace, paletteRotation]);
 
   // Process uploaded face image
   const processFaceImage = useCallback((imageFile) => {
@@ -490,7 +490,7 @@ const PookalaGenerator = () => {
   // Generate initial Pookalam
   useEffect(() => {
     generatePookalam();
-  }, [generatePookalam, size]);
+  }, [generatePookalam, size, paletteRotation]);
 
   return (
     <div className="min-h-screen p-6">
