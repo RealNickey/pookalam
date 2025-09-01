@@ -1,6 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
 
 // Traditional Onam color palettes
 const COLOR_PALETTES = [
@@ -31,6 +39,7 @@ const PookalaGenerator = () => {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [processedFace, setProcessedFace] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [size, setSize] = useState(600);
 
   // Generate Pookalam pattern
   const generatePookalam = useCallback(() => {
@@ -207,6 +216,7 @@ const PookalaGenerator = () => {
     if (file && file.type.startsWith('image/')) {
       setUploadedImage(file);
       processFaceImage(file);
+      toast.success("Photo uploaded!", { description: "We stylized it to match the rangoli vibes." });
     }
   };
 
@@ -229,104 +239,149 @@ const PookalaGenerator = () => {
     link.download = 'onam-pookalam.png';
     link.href = canvas.toDataURL();
     link.click();
+    toast("Your Pookalam is ready!", { description: "Saved as onam-pookalam.png" });
   };
 
   // Generate initial Pookalam
   useEffect(() => {
     generatePookalam();
-  }, [generatePookalam]);
+  }, [generatePookalam, size]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-green-50 p-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-orange-800 mb-2">
-            🌸 Onam Pookalam Generator 🌸
-          </h1>
-          <p className="text-gray-700">
-            Create beautiful Onam Pookalam with your photo as the center
-          </p>
-        </div>
-
-        {/* Controls */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            accept="image/*"
-            className="hidden"
-          />
-          
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isProcessing}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
-          >
-            📁 Upload Photo
-          </button>
-          
-          <button
-            onClick={randomizeColors}
-            className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            🎲 Randomize Colors
-          </button>
-          
-          <button
-            onClick={downloadImage}
-            className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-          >
-            ⬇️ Download
-          </button>
-        </div>
-
-        {/* Current palette info */}
-        <div className="text-center mb-4">
-          <p className="text-gray-700 mb-2">
-            Current Palette: <span className="font-semibold">{COLOR_PALETTES[currentPalette].name}</span>
-          </p>
-          <div className="flex justify-center gap-2">
-            {COLOR_PALETTES[currentPalette].colors.map((color, index) => (
-              <div
-                key={index}
-                className="w-6 h-6 rounded-full border-2 border-white shadow-md"
-                style={{ backgroundColor: color }}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Canvas */}
-        <div className="flex justify-center mb-8">
-          <div className="relative">
-            <canvas
-              ref={canvasRef}
-              width={600}
-              height={600}
-              className="border-4 border-orange-200 rounded-lg shadow-lg bg-white max-w-full h-auto"
-            />
-            {isProcessing && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                <div className="text-white text-lg">Processing face...</div>
+    <div className="min-h-screen p-6">
+      <div className="max-w-5xl mx-auto">
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <CardTitle className="text-3xl">🌸 Onam Pookalam Generator</CardTitle>
+                <CardDescription>Create a vibrant rangoli with your photo at the center.</CardDescription>
               </div>
-            )}
-          </div>
-        </div>
+              <Badge variant="secondary" className="text-sm">Bright & Festive</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {/* Controls */}
+            <div className="flex flex-wrap items-end gap-4 mb-6">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept="image/*"
+                className="hidden"
+              />
 
-        {/* Hidden canvas for face processing */}
-        <canvas ref={faceCanvasRef} className="hidden" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button onClick={() => fileInputRef.current?.click()} disabled={isProcessing}>
+                      📁 Upload Photo
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Choose a clear, front-facing photo</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-        {/* Instructions */}
-        <div className="text-center text-gray-600 max-w-2xl mx-auto">
-          <h3 className="font-semibold mb-2">How to use:</h3>
-          <ol className="text-sm space-y-1">
-            <li>1. Upload a front-facing photo for the center</li>
-            <li>2. Click "Randomize Colors" to try different color palettes</li>
-            <li>3. Download your beautiful Onam Pookalam!</li>
-          </ol>
-        </div>
+              <div className="grid gap-2">
+                <Label htmlFor="palette">Palette</Label>
+                <Select value={String(currentPalette)} onValueChange={(v) => setCurrentPalette(Number(v))}>
+                  <SelectTrigger id="palette" className="w-[200px]">
+                    <SelectValue placeholder="Select palette" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COLOR_PALETTES.map((p, idx) => (
+                      <SelectItem key={p.name} value={String(idx)}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="size">Canvas Size</Label>
+                <Select value={String(size)} onValueChange={(v) => setSize(Number(v))}>
+                  <SelectTrigger id="size" className="w-[160px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[400, 600, 800].map((s) => (
+                      <SelectItem key={s} value={String(s)}>
+                        {s} × {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="ml-auto flex gap-2">
+                <Button variant="secondary" onClick={randomizeColors}>🎲 Randomize</Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button onClick={downloadImage}>⬇️ Download</Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Save your Pookalam as PNG</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+
+            {/* Current palette info */}
+            <div className="text-center mb-4">
+              <p className="text-muted-foreground mb-2">
+                Current Palette: <span className="font-semibold">{COLOR_PALETTES[currentPalette].name}</span>
+              </p>
+              <div className="flex justify-center gap-2">
+                {COLOR_PALETTES[currentPalette].colors.map((color, index) => (
+                  <div
+                    key={index}
+                    className="w-6 h-6 rounded-full border shadow-sm"
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Canvas */}
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <canvas
+                  ref={canvasRef}
+                  width={size}
+                  height={size}
+                  className="border rounded-lg shadow bg-card max-w-full h-auto"
+                />
+                {isProcessing && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-lg">
+                    <div className="text-white text-sm">Processing face...</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Hidden canvas for face processing */}
+            <canvas ref={faceCanvasRef} className="hidden" />
+
+            {/* Progress hint (shows while processing) */}
+            {isProcessing ? (
+              <div className="grid gap-2">
+                <Label>Stylizing</Label>
+                <Progress value={70} />
+              </div>
+            ) : null}
+
+            {/* Instructions */}
+            <div className="text-center text-muted-foreground max-w-2xl mx-auto mt-6">
+              <h3 className="font-semibold mb-2">How to use</h3>
+              <ol className="text-sm space-y-1">
+                <li>1. Upload a front-facing photo for the center</li>
+                <li>2. Try different color palettes or hit Randomize</li>
+                <li>3. Download your beautiful Onam Pookalam!</li>
+              </ol>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

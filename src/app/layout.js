@@ -1,4 +1,6 @@
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata = {
   title: "Onam Pookalam Generator",
@@ -9,7 +11,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="bg-background text-foreground antialiased">
-        {children}
+        <ThemeProvider>
+          {children}
+          <Toaster richColors closeButton visibleToasts={2} />
+        </ThemeProvider>
       </body>
     </html>
   );
