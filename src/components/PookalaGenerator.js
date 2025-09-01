@@ -57,6 +57,21 @@ const PookalaGenerator = () => {
     const palette = COLOR_PALETTES[currentPalette].colors;
     const layers = 8;
     const petalsPerLayer = 12;
+
+    // Base: fully fill the circular area with a vivid radial gradient
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, maxRadius, 0, 2 * Math.PI);
+    ctx.closePath();
+    ctx.clip();
+    const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
+    const stops = palette.length - 1;
+    palette.forEach((color, i) => {
+      grad.addColorStop(stops === 0 ? 1 : i / stops, color);
+    });
+    ctx.fillStyle = grad;
+    ctx.fillRect(centerX - maxRadius, centerY - maxRadius, maxRadius * 2, maxRadius * 2);
+    ctx.restore();
     
     // Draw concentric layers
     for (let layer = layers; layer >= 1; layer--) {
@@ -89,12 +104,12 @@ const PookalaGenerator = () => {
         ctx.restore();
       }
       
-      // Add decorative inner circle for each layer
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius * 0.3, 0, 2 * Math.PI);
-      ctx.fillStyle = palette[(colorIndex + 2) % palette.length];
-      ctx.fill();
-      ctx.stroke();
+  // Add decorative inner circle for each layer to increase coverage/texture
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius * 0.35, 0, 2 * Math.PI);
+  ctx.fillStyle = palette[(colorIndex + 2) % palette.length];
+  ctx.fill();
+  ctx.stroke();
     }
     
     // Draw center face if available
